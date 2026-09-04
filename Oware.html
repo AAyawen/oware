@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oware — Feyiase, 1701</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood-dark: #33200f;
+    --wood-mid: #52301a;
+    --wood-light: #6d4425;
+    --wood-rim: #24140a;
+    --bg-deep: #1a1109;
+    --pit: #ecdfc0;
+    --pit-shadow: #b6a06c;
+    --seed: #a8571f;
+    --seed-dark: #7a3d13;
+    --gold: #d9a441;
+    --gold-dark: #96701f;
+    --cream: #f2e8d6;
+    --cream-dim: #cbbb9a;
+    --accent: #3f7a63;
+    --accent-light: #5aa383;
+    --danger: #b3543a;
+    --ink: #241708;
+  }
+  *{box-sizing:border-box;}
+  html, body{ margin:0; padding:0; }
+  body{
+    position:relative;
+    background:
+      radial-gradient(ellipse at 20% -10%, #3a2617 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 110%, #2c1c10 0%, transparent 50%),
+      repeating-linear-gradient(115deg, rgba(0,0,0,0.10) 0px, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 5px),
+      linear-gradient(175deg, #241609 0%, var(--bg-deep) 45%, #150d06 100%);
+    font-family: 'Inter', sans-serif;
+    color: var(--cream);
+    min-height:100vh;
+    padding: 32px 16px 64px;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:0.055;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cg fill='none' stroke='%23f2e8d6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='58' cy='90' rx='20' ry='13'/%3E%3Cpath d='M40,94 L22,102 M43,99 L27,111'/%3E%3Cpath d='M54,101 L50,120 M64,101 L69,120'/%3E%3Cpath d='M42,120 L54,120 M62,120 L74,120'/%3E%3Cpath d='M71,82 C84,74 90,59 81,47'/%3E%3Ccircle cx='81' cy='46' r='3.2' fill='%23f2e8d6'/%3E%3Cpath d='M81,46 L88,43'/%3E%3Ccircle cx='62' cy='72' r='4' fill='%23f2e8d6'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 170px 170px;
+    background-repeat: repeat;
+  }
+  .wrap{ max-width: 760px; margin: 0 auto; position:relative; z-index:1; }
+  header{ text-align:center; margin-bottom: 22px; position:relative; }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 38px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+    color: var(--cream);
+  }
+  .subtitle{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:400;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 0;
+  }
+  .scoreboard{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin: 26px 0 12px;
+    padding: 0 4px;
+  }
+  .score{ display:flex; flex-direction:column; gap: 2px; max-width: 40%; }
+  .score.you{align-items:flex-start;}
+  .score.bot{align-items:flex-end; text-align:right;}
+  .score-label{ font-size:11px; color:var(--cream-dim); letter-spacing:0.03em; }
+  .score-value{ font-family:'Fraunces',serif; font-size:26px; font-weight:600; transition: transform 0.15s ease; }
+  .score-value.pop{ transform: scale(1.35); color: var(--gold); }
+  .turn-indicator{
+    font-size: 12px;
+    color: var(--accent-light);
+    font-weight:600;
+    padding: 5px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    background: rgba(63,122,99,0.12);
+    white-space:nowrap;
+  }
+  .board{
+    position:relative;
+    background:
+      repeating-linear-gradient(100deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 2px, transparent 2px, transparent 7px),
+      radial-gradient(ellipse at 30% 20%, var(--wood-light) 0%, var(--wood-mid) 55%, var(--wood-dark) 100%);
+    border-radius: 20px;
+    padding: 20px 16px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.05), inset 0 0 0 6px var(--wood-rim);
+  }
+  .row{ display:flex; gap: 9px; justify-content: center; }
+  .row + .row{ margin-top: 11px; }
+  .pit{
+    flex:1;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--pit) 0%, var(--pit-shadow) 100%);
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(255,255,255,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    transition: transform 0.12s ease, box-shadow 0.18s ease;
+    min-width: 0;
+  }
+  .pit.clickable{ cursor:pointer; }
+  .pit.clickable:hover{
+    transform: translateY(-3px);
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(255,255,255,0.25), 0 6px 14px rgba(0,0,0,0.35);
+  }
+  .pit.last-sown{ box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(255,255,255,0.25), 0 0 0 3px var(--seed); }
+  .pit.capturing{ animation: glow-gold 0.9s ease; }
+  .pit.bounce{ animation: bounce-pit 0.28s ease; }
+  @keyframes glow-gold{
+    0%{ box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), 0 0 0 3px var(--gold); }
+    60%{ box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), 0 0 18px 6px var(--gold); }
+    100%{ box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), 0 0 0 0 rgba(217,164,65,0); }
+  }
+  @keyframes bounce-pit{
+    0%{ transform: scale(1); }
+    45%{ transform: scale(1.16); }
+    100%{ transform: scale(1); }
+  }
+  .pebble-cluster{
+    width: 74%;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-content:center;
+    gap:2px;
+  }
+  .pebble{
+    border-radius:50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.35);
+    flex-shrink:0;
+  }
+  .pebble.t1{ background: radial-gradient(circle at 35% 30%, #a8571f, #7a3d13); }
+  .pebble.t2{ background: radial-gradient(circle at 35% 30%, #8c6239, #5e3f22); }
+  .pebble.t3{ background: radial-gradient(circle at 35% 30%, #b97a3a, #7a4d1f); }
+  .pit-label{ position:absolute; bottom: 4px; right: 8px; font-size: 9px; color: rgba(36,23,8,0.4); font-weight:600; }
+  .status-line{ text-align:center; margin: 16px 0; min-height: 20px; font-size: 13px; color: var(--cream-dim); }
+  .controls{ display:flex; gap: 10px; justify-content:center; margin-top: 4px; flex-wrap:wrap; }
+  button{
+    font-family:'Inter', sans-serif;
+    font-size: 13px;
+    font-weight:600;
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent-light);
+    cursor:pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  button:hover:not(:disabled){ background: var(--accent); color: var(--cream); }
+  button:disabled{ opacity:0.35; cursor:default; }
+  button.primary{ background: var(--accent); color: var(--cream); border-color:var(--accent); }
+  button.primary:hover:not(:disabled){ background: var(--accent-light); }
+  button.ghost{ border-color: var(--gold-dark); color: var(--gold); }
+  button.ghost:hover:not(:disabled){ background: rgba(217,164,65,0.14); color: var(--gold); }
+
+  .okomfo-panel{
+    margin-top: 20px;
+    background: linear-gradient(175deg, rgba(109,68,37,0.22), rgba(36,22,9,0.5));
+    border: 1px solid rgba(217,164,65,0.28);
+    border-radius: 16px;
+    padding: 18px 20px;
+    display:flex;
+    gap: 14px;
+  }
+  .okomfo-avatar{
+    flex-shrink:0;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--wood-light), var(--wood-dark));
+    border: 1px solid var(--gold-dark);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .okomfo-body{ flex:1; min-width:0; }
+  .okomfo-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing:0.02em;
+    margin: 0 0 6px;
+  }
+  .okomfo-text{ font-size: 14.5px; line-height: 1.65; color: var(--cream); }
+  .okomfo-text p{ margin: 0 0 8px; }
+  .okomfo-text p:last-child{ margin-bottom:0; }
+  .okomfo-greeting{ color: var(--cream-dim); font-style:italic; }
+  .aphorism{
+    display:block;
+    margin-top: 8px;
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    color: var(--cream-dim);
+    font-size: 13.5px;
+  }
+
+  .game-over{
+    text-align:center;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(217,164,65,0.1);
+    border: 1px solid var(--gold-dark);
+    font-family:'Fraunces', serif;
+    font-size: 16px;
+  }
+
+  .intro-overlay{
+    position:fixed; inset:0; z-index: 500;
+    background: rgba(10,6,3,0.86);
+    display:flex; align-items:center; justify-content:center;
+    padding: 20px;
+  }
+  .intro-overlay.hidden{ display:none; }
+  .intro-card{
+    max-width: 540px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: linear-gradient(175deg, var(--wood-light), var(--wood-dark));
+    border: 1px solid var(--gold-dark);
+    border-radius: 18px;
+    padding: 30px 28px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55);
+  }
+  .intro-card h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 24px;
+    margin: 0 0 2px;
+    color: var(--cream);
+  }
+  .intro-kicker{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    color: var(--gold);
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
+  .intro-card p{
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--cream-dim);
+    margin: 0 0 12px;
+  }
+  .quote{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--cream);
+    margin: 0 0 4px;
+    line-height:1.5;
+  }
+  .quote-attr{ font-size: 12px; color: var(--cream-dim); margin: 0 0 16px; }
+  .divider{ display:flex; align-items:center; gap:10px; margin: 16px 0; }
+  .divider-line{ flex:1; height:1px; background: linear-gradient(90deg, transparent, var(--gold-dark), transparent); }
+  .divider-spear{ flex-shrink:0; }
+  .intro-card button{ margin-top: 6px; }
+
+  .traveling-seed{
+    position:fixed;
+    width:13px; height:13px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--seed) 0%, var(--seed-dark) 100%);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    transform: translate(-50%,-50%);
+    z-index: 9999;
+    pointer-events:none;
+    opacity:0;
+  }
+</style>
+</head>
+<body>
+<div id="animLayer"></div>
+
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-card">
+    <div id="introPage1">
+      <h2>The King's Last Game</h2>
+      <p class="intro-kicker">Feyiase, 1701</p>
+      <p>In 1701, the Denkyira kingdom was a powerful and vastly wealthy state in what is now modern-day Ghana. Conquering neighbour states and dominating trade with European merchants, the kingdom was so abundant that its kings would cast new gold ornaments for each ceremony; gold worn publicly was never seen again.</p>
+      <p>But he who sits atop the throne has many enemies, and the iron fist rule of the Denkyira king, Ntim Gyakari I, stirred a revolt among rival chiefs, led by the Asante kingdom. Inevitably, war broke out. The Asantes, playing the long game, sacrificed the initial battles to give the illusion of weakness.</p>
+      <p>And then came the Battle of Feyiase. So assured was he of victory, Ntim Gyakari did not even bother to show up to the battlefield. His troops, without a figurehead and a strategy, were overpowered, and the Asante army marched into the Denkyira capital. There, they captured and killed the shocked king, who had been at home with his wife, ironically playing a game of aware, an ancient African game of strategy.</p>
+      <div class="divider">
+        <span class="divider-line"></span>
+        <svg class="divider-spear" width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
+          <line x1="8" y1="50" x2="80" y2="50" stroke="#d9a441" stroke-width="4"/>
+          <path d="M80,50 L64,38 L64,62 Z" fill="#d9a441"/>
+          <line x1="16" y1="42" x2="16" y2="58" stroke="#d9a441" stroke-width="4"/>
+        </svg>
+        <span class="divider-line"></span>
+      </div>
+      <p class="quote">&ldquo;Attack him where he is unprepared, appear where you are not expected.&rdquo;</p>
+      <p class="quote-attr">— Sun Tzu, <em>The Art of War</em></p>
+      <button class="primary" id="btnPage2">Continue</button>
+    </div>
+    <div id="introPage2" style="display:none;">
+      <h2>The Beaded Stool</h2>
+      <p class="intro-kicker">Three centuries later</p>
+      <p>Three hundred years later, it is you who sits upon the Beaded Stool. Once again, that oware board sits before you, the game that overshadowed the fall of your long-gone predecessor. With twelve pits, each holding four stones, it bears the face of simplicity yet holds infinite possibilities.</p>
+      <p>The Sankofa adage reminds us that: &ldquo;To move forward, we must look to the past.&rdquo; Will you repeat the mistakes of history, or will you prevail with strategy and patience? Time will tell&hellip;</p>
+      <p>Your Okomfo, the chief priest and traditional advisor to the king, will be by your side. He will guide you with the insight of the gods, but you are the king, and your choices will determine your outcome. Remember the old proverb:</p>
+      <div class="divider">
+        <span class="divider-line"></span>
+        <svg class="divider-spear" width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
+          <line x1="8" y1="50" x2="80" y2="50" stroke="#d9a441" stroke-width="4"/>
+          <path d="M80,50 L64,38 L64,62 Z" fill="#d9a441"/>
+          <line x1="16" y1="42" x2="16" y2="58" stroke="#d9a441" stroke-width="4"/>
+        </svg>
+        <span class="divider-line"></span>
+      </div>
+      <p class="quote"><em>Nyansapo wosane no badwemma.</em></p>
+      <p class="quote-attr">(The knot of wisdom is untied only by the wise.)</p>
+      <button class="primary" id="btnBegin">Begin the game</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>Oware</h1>
+    <p class="subtitle">Feyiase, 1701</p>
+  </header>
+
+  <div class="scoreboard">
+    <div class="score you">
+      <span class="score-label">You</span>
+      <span class="score-value" id="scoreYou">0</span>
+    </div>
+    <span class="turn-indicator" id="turnIndicator">Your move</span>
+    <div class="score bot">
+      <span class="score-label" id="scoreLabelBot">—</span>
+      <span class="score-value" id="scoreBot">0</span>
+    </div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="row" id="rowNorth"></div>
+    <div class="row" id="rowSouth"></div>
+  </div>
+
+  <p class="status-line" id="statusLine">Pick a pit on your row to begin.</p>
+
+  <div class="controls">
+    <button id="btnNew">New game</button>
+    <button class="ghost" id="btnHistory">Read the history</button>
+  </div>
+
+  <div class="okomfo-panel">
+    <div class="okomfo-avatar" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 100 100">
+        <path d="M50,90 L50,74 M40,74 L60,74 M50,74 C44,58 30,46 18,20" stroke="#d9a441" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="50" cy="90" r="3.5" fill="#d9a441"/>
+      </svg>
+    </div>
+    <div class="okomfo-body">
+      <p class="okomfo-name">The Okomfo</p>
+      <div class="okomfo-text" id="okomfoText">
+        <p class="okomfo-greeting">My king, the board is set. Choose your first move, and I shall counsel you.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOverBox"></div>
+</div>
+
+<script>
+/* ---------- Rules engine ---------- */
+
+const SOUTH = 0, NORTH = 1;
+
+function initialState(){
+  return {
+    board: [4,4,4,4,4,4,4,4,4,4,4,4],
+    captures: [0,0],
+    turn: SOUTH,
+    lastSown: -1,
+    over: false,
+    winner: null,
+    history: {}
+  };
+}
+
+function positionKey(board, turn){ return board.join(',') + '|' + turn; }
+function ownSide(player){ return player===SOUTH ? [0,1,2,3,4,5] : [6,7,8,9,10,11]; }
+function oppSide(player){ return player===SOUTH ? [6,7,8,9,10,11] : [0,1,2,3,4,5]; }
+function sideSum(board, pits){ return pits.reduce((a,i)=>a+board[i],0); }
+
+function applySow(board, player, pit){
+  let b = board.slice();
+  let seeds = b[pit];
+  b[pit] = 0;
+  let idx = pit;
+  while(seeds > 0){ idx = (idx+1) % 12; b[idx]++; seeds--; }
+  let captured = 0;
+  const opp = oppSide(player);
+  if(opp.includes(idx)){
+    let cidx = idx;
+    while(opp.includes(cidx) && (b[cidx]===2 || b[cidx]===3)){
+      captured += b[cidx];
+      b[cidx] = 0;
+      cidx = (cidx - 1 + 12) % 12;
+    }
+  }
+  return {board: b, captured, lastSown: idx};
+}
+
+// Same sowing logic, but also returns the ordered destination path and captured pits — animation only.
+function simulateSowForAnimation(board, player, pit){
+  let b = board.slice();
+  let seeds = b[pit];
+  b[pit] = 0;
+  let idx = pit;
+  let path = [];
+  while(seeds > 0){ idx = (idx+1) % 12; b[idx]++; seeds--; path.push(idx); }
+  let capturedPits = [];
+  let captured = 0;
+  const opp = oppSide(player);
+  if(opp.includes(idx)){
+    let cidx = idx;
+    while(opp.includes(cidx) && (b[cidx]===2 || b[cidx]===3)){
+      captured += b[cidx];
+      capturedPits.push(cidx);
+      b[cidx] = 0;
+      cidx = (cidx - 1 + 12) % 12;
+    }
+  }
+  return {path, capturedPits, captured};
+}
+
+function wouldStarveOpponent(board, player, pit){
+  const {board:nb} = applySow(board, player, pit);
+  return sideSum(nb, oppSide(player)) === 0;
+}
+
+function legalMoves(board, player){
+  const candidates = ownSide(player).filter(i => board[i] > 0);
+  const nonStarving = candidates.filter(i => !wouldStarveOpponent(board, player, i));
+  return nonStarving.length > 0 ? nonStarving : candidates;
+}
+
+function isTerminal(state){ return state.over; }
+
+function playMove(state, pit){
+  const player = state.turn;
+  const {board, captured, lastSown} = applySow(state.board, player, pit);
+  const captures = state.captures.slice();
+  captures[player] += captured;
+
+  let over = false, winner = null;
+  if(captures[player] > 24){ over = true; winner = player; }
+
+  const nextPlayer = player === SOUTH ? NORTH : SOUTH;
+  const history = Object.assign({}, state.history);
+
+  if(!over){
+    if(sideSum(board, ownSide(nextPlayer)) === 0){
+      const remaining = sideSum(board, ownSide(player));
+      captures[player] += remaining;
+      for(const i of ownSide(player)) board[i] = 0;
+      over = true;
+      winner = captures[0] === captures[1] ? 'draw' : (captures[0] > captures[1] ? SOUTH : NORTH);
+    } else if(captures[0] + captures[1] === 48){
+      over = true;
+      winner = captures[0] === captures[1] ? 'draw' : (captures[0] > captures[1] ? SOUTH : NORTH);
+    } else {
+      const key = positionKey(board, nextPlayer);
+      history[key] = (history[key] || 0) + 1;
+      if(history[key] >= 3){
+        const remaining = sideSum(board, [0,1,2,3,4,5,6,7,8,9,10,11]);
+        const half = Math.floor(remaining / 2);
+        captures[0] += half;
+        captures[1] += remaining - half;
+        for(let i=0;i<12;i++) board[i] = 0;
+        over = true;
+        winner = captures[0] === captures[1] ? 'draw' : (captures[0] > captures[1] ? SOUTH : NORTH);
+      }
+    }
+  }
+
+  return { board, captures, turn: nextPlayer, lastSown, over, winner, history };
+}
+
+/* ---------- Evaluation & search ---------- */
+
+function evaluate(state, forPlayer){
+  const opp = forPlayer === SOUTH ? NORTH : SOUTH;
+  if(state.over){
+    if(state.winner === forPlayer) return 1000 + (state.captures[forPlayer] - state.captures[opp]);
+    if(state.winner === opp) return -1000 - (state.captures[opp] - state.captures[forPlayer]);
+    return 0;
+  }
+  const material = (state.captures[forPlayer] - state.captures[opp]) * 3;
+  const control = sideSum(state.board, ownSide(forPlayer)) * 0.4 - sideSum(state.board, ownSide(opp)) * 0.3;
+  const mobility = (legalMoves(state.board, forPlayer).length - legalMoves(state.board, opp).length) * 1.2;
+  let vulnerability = 0;
+  for(const i of ownSide(forPlayer)){
+    if(state.board[i] === 1 || state.board[i] === 2) vulnerability -= 0.6;
+  }
+  return material + control + mobility + vulnerability;
+}
+
+function minimax(state, depth, alpha, beta, rootPlayer){
+  if(depth === 0 || isTerminal(state)) return evaluate(state, rootPlayer);
+  const player = state.turn;
+  const moves = legalMoves(state.board, player);
+  const maximizing = player === rootPlayer;
+  let best = maximizing ? -Infinity : Infinity;
+  for(const m of moves){
+    const next = playMove(state, m);
+    const val = minimax(next, depth - 1, alpha, beta, rootPlayer);
+    if(maximizing){
+      if(val > best) best = val;
+      if(best > alpha) alpha = best;
+    } else {
+      if(val < best) best = val;
+      if(best < beta) beta = best;
+    }
+    if(alpha >= beta) break;
+  }
+  return best;
+}
+
+function getBestMove(state, depth){
+  const player = state.turn;
+  const moves = legalMoves(state.board, player);
+  if(moves.length === 0) return {move: null, score: 0};
+  let best = moves[0], bestScore = -Infinity;
+  for(const m of moves){
+    const next = playMove(state, m);
+    const score = minimax(next, depth - 1, -Infinity, Infinity, player);
+    if(score > bestScore){ bestScore = score; best = m; }
+  }
+  return {move: best, score: bestScore};
+}
+
+/* ---------- Strategic analysis for the Okomfo's counsel ---------- */
+
+const ADVISOR_DEPTH = 6;
+
+function analyzeMoves(state){
+  const player = state.turn;
+  const moves = legalMoves(state.board, player);
+  const analyzed = moves.map(m => {
+    const sow = applySow(state.board, player, m);
+    const next = playMove(state, m);
+    const score = minimax(next, ADVISOR_DEPTH - 1, -Infinity, Infinity, player);
+    let oppBestCapture = 0;
+    if(!next.over){
+      const oppMoves = legalMoves(next.board, next.turn);
+      for(const om of oppMoves){
+        const r = applySow(next.board, next.turn, om);
+        if(r.captured > oppBestCapture) oppBestCapture = r.captured;
+      }
+    }
+    const ownRemaining = sideSum(next.board, ownSide(player));
+    return { move: m, score, capturedNow: sow.captured, oppBestCapture, ownRemaining };
+  });
+  analyzed.sort((a,b) => b.score - a.score);
+  return analyzed;
+}
+
+const APHORISMS = {
+  CAPTURE: [
+    "A general who seizes the harvest before him need not gamble on tomorrow's.",
+    "Take what is offered when the offer is real — hesitation is its own defeat."
+  ],
+  DEFENSE: [
+    "The wall that holds is worth more than the spear that misses.",
+    "A kingdom is not lost in a single charge, but in the flank left carelessly open."
+  ],
+  MOBILITY: [
+    "Keep many paths open, my king — a general with one road is a general already cornered.",
+    "The merchant with many routes to market fears no single blockade."
+  ],
+  PATIENCE: [
+    "The patient trader stores his best goods for the buyer who will pay in full.",
+    "Not every strong move announces itself with plunder."
+  ]
+};
+
+function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+function pickAphorism(category){ return pick(APHORISMS[category] || APHORISMS.PATIENCE); }
+
+function reasonForBest(a){
+  if(a.capturedNow > 0){
+    return { clause: `it lets you gather ${a.capturedNow} seed${a.capturedNow===1?'':'s'} into your store right now`, category: 'CAPTURE' };
+  }
+  if(a.oppBestCapture === 0){
+    return { clause: `it leaves your rival nothing to seize in reply`, category: 'DEFENSE' };
+  }
+  if(a.ownRemaining >= 8){
+    return { clause: `it keeps your seeds flowing and your options open for the turns ahead`, category: 'MOBILITY' };
+  }
+  return { clause: `it strengthens your position without inviting an immediate strike`, category: 'PATIENCE' };
+}
+
+function reasonForAlt(a, best){
+  let clause = a.capturedNow > 0
+    ? `it also gathers ${a.capturedNow} seed${a.capturedNow===1?'':'s'} now`
+    : `it keeps your row well defended`;
+  let caveat = '';
+  if(a.oppBestCapture > best.oppBestCapture){
+    caveat = `, though it leaves you a little more open to a reply worth ${a.oppBestCapture} seed${a.oppBestCapture===1?'':'s'}`;
+  } else if(a.capturedNow < best.capturedNow){
+    caveat = `, though it gathers less than the wiser path`;
+  }
+  return clause + caveat;
+}
+
+function reasonForWarn(a){
+  if(a.ownRemaining <= 1) return `it would leave your row nearly bare, inviting the starvation that ends games before they are won`;
+  if(a.oppBestCapture >= 3) return `it would open your row to a reply that could cost you ${a.oppBestCapture} seeds`;
+  return `it trades away your position for nothing in return`;
+}
+
+function pitLabel(i){ return i <= 5 ? String(i + 1) : String(12 - i); }
+
+const OPENERS = [
+  (p,r) => `My king, pit ${p} is the wisest counsel — ${r}.`,
+  (p,r) => `Consider pit ${p}, my king: ${r}.`,
+  (p,r) => `The board favors pit ${p} here — ${r}.`,
+  (p,r) => `My counsel is pit ${p}, for ${r}.`,
+  (p,r) => `Pit ${p} serves you best, my king, since ${r}.`
+];
+const ALT_CONNECTORS = [
+  (p,r) => `Should you prefer another path, pit ${p} would serve too: ${r}.`,
+  (p,r) => `Pit ${p} is also sound, if you wish it — ${r}.`,
+  (p,r) => `An alternative lies in pit ${p}: ${r}.`,
+  (p,r) => `You might instead choose pit ${p}, which ${r}.`
+];
+const WARN_CONNECTORS = [
+  (p,r) => `Avoid pit ${p} above all, my king — ${r}.`,
+  (p,r) => `Whatever you choose, shun pit ${p}: ${r}.`,
+  (p,r) => `One warning, my king — pit ${p} would be folly, for ${r}.`,
+  (p,r) => `Do not be tempted by pit ${p}: ${r}.`
+];
+
+function buildAdvisorMessage(state){
+  const analyzed = analyzeMoves(state);
+  const best = analyzed[0];
+  const bestReason = reasonForBest(best);
+
+  if(analyzed.length === 1){
+    return `My king, pit ${pitLabel(best.move)} is your only path — ${bestReason.clause}. <span class="aphorism">${pickAphorism(bestReason.category)}</span>`;
+  }
+
+  let msg = pick(OPENERS)(pitLabel(best.move), bestReason.clause);
+
+  const alt = analyzed[1];
+  if(alt && Math.random() < 0.85){
+    msg += ' ' + pick(ALT_CONNECTORS)(pitLabel(alt.move), reasonForAlt(alt, best));
+  }
+
+  const worst = analyzed[analyzed.length - 1];
+  const gap = best.score - worst.score;
+  const worstDangerous = worst.move !== best.move && worst.move !== (alt && alt.move) && (gap > 3 || worst.oppBestCapture >= 3 || worst.ownRemaining <= 1);
+  if(worstDangerous){
+    msg += ' ' + pick(WARN_CONNECTORS)(pitLabel(worst.move), reasonForWarn(worst));
+  }
+
+  msg += ` <span class="aphorism">${pickAphorism(bestReason.category)}</span>`;
+  return msg;
+}
+
+const OPPONENT_NAMES = ["Osei Tutu", "Nana Prempeh", "Boa Amponsem", "Opoku Ware", "Osei Bonsu", "Osei Kwadwo", "Kwaku Dua", "Osei Yaw Akoto"];
+
+const OPPONENT_CAPTURE_LINES = [
+  (name, c) => `${name}'s forces sow from their row and seize ${c} seed${c===1?'':'s'} — a probing strike, my king.`,
+  (name, c) => `${name} gathers ${c} seed${c===1?'':'s'} from your line. Stay watchful.`
+];
+const OPPONENT_QUIET_LINES = [
+  (name) => `${name} sows quietly, building a position.`,
+  (name) => `A patient move from ${name} — he, too, understands the long game.`
+];
+
+function narrateOpponentMove(name, captured){
+  if(captured > 0) return pick(OPPONENT_CAPTURE_LINES)(name, captured);
+  return pick(OPPONENT_QUIET_LINES)(name);
+}
+
+const WIN_MESSAGES = [
+  "Well played, my king. Where Ntim Gyakari saw only a game, you saw a battlefield — and mastered it through patience and wise strategy. The stool is safe in your hands.",
+  "Victory, my king, and a hard-won one. You watched the board until the very end — the one thing your predecessor did not do."
+];
+const LOSS_MESSAGES = [
+  (name) => `So it ended once, and so it ends again, my king. Complacency wears many disguises — today it wore yours, and ${name} was patient enough to wait for it. The mistakes of the past repeat themselves when we stop watching the board.`,
+  (name) => `${name} has done to you what Osei Tutu once did to Ntim Gyakari, my king. History does not repeat itself by accident — it repeats when we let it.`
+];
+const DRAW_MESSAGES = [
+  "Neither triumph nor ruin, my king — a rare and careful balance. Even Ntim Gyakari might have envied such caution.",
+  "A draw, my king. No shame in it — you gave your rival nothing easy, and took nothing rash yourself."
+];
+
+/* ---------- UI state ---------- */
+
+const BOT_DEPTH = 8;
+let state = initialState();
+let busy = false;
+let firstTurn = true;
+let opponentName = OPPONENT_NAMES[0];
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+function nextFrame(){ return new Promise(r => requestAnimationFrame(r)); }
+
+function pickOpponentName(){
+  opponentName = OPPONENT_NAMES[Math.floor(Math.random() * OPPONENT_NAMES.length)];
+  const el = document.getElementById('scoreLabelBot');
+  if(el) el.textContent = opponentName;
+}
+
+function pebbleSize(count){
+  if(count <= 4) return 12;
+  if(count <= 8) return 10;
+  if(count <= 14) return 8;
+  if(count <= 20) return 6;
+  return 5;
+}
+
+function seededRand(seed){ const x = Math.sin(seed * 99991 + 1) * 10000; return x - Math.floor(x); }
+
+function appendPebbles(wrap, pitIndex, count){
+  wrap.innerHTML = '';
+  const size = pebbleSize(count);
+  const tones = ['t1','t2','t3'];
+  for(let k = 0; k < count; k++){
+    const p = document.createElement('span');
+    p.className = 'pebble ' + tones[(pitIndex * 7 + k) % 3];
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    const jr = seededRand(pitIndex * 131 + k * 17 + 7);
+    const jr2 = seededRand(pitIndex * 271 + k * 53 + 3);
+    const rot = (jr * 40 - 20).toFixed(1);
+    const dy = (jr2 * 6 - 3).toFixed(1);
+    p.style.transform = 'translateY(' + dy + 'px) rotate(' + rot + 'deg)';
+    wrap.appendChild(p);
+  }
+}
+
+function buildPebbleCluster(pitIndex, count){
+  const wrap = document.createElement('div');
+  wrap.className = 'pebble-cluster';
+  appendPebbles(wrap, pitIndex, count);
+  return wrap;
+}
+
+function render(){
+  const rowNorth = document.getElementById('rowNorth');
+  const rowSouth = document.getElementById('rowSouth');
+  rowNorth.innerHTML = '';
+  rowSouth.innerHTML = '';
+
+  const northOrder = [11,10,9,8,7,6];
+  const southOrder = [0,1,2,3,4,5];
+  for(const i of northOrder) rowNorth.appendChild(makePit(i));
+  for(const i of southOrder) rowSouth.appendChild(makePit(i));
+
+  document.getElementById('scoreYou').textContent = state.captures[SOUTH];
+  document.getElementById('scoreBot').textContent = state.captures[NORTH];
+
+  const indicator = document.getElementById('turnIndicator');
+  if(state.over) indicator.textContent = 'Game concluded';
+  else indicator.textContent = state.turn === SOUTH ? 'Your move' : (opponentName + "'s move");
+
+  const box = document.getElementById('gameOverBox');
+  box.innerHTML = '';
+  if(state.over){
+    let label = state.winner === 'draw' ? 'A draw' : (state.winner === SOUTH ? 'You win' : (opponentName + ' wins'));
+    box.innerHTML = `<div class="game-over">${label} — ${state.captures[SOUTH]} to ${state.captures[NORTH]}.</div>`;
+  }
+}
+
+function makePit(i){
+  const div = document.createElement('div');
+  const isSouth = i <= 5;
+  div.className = 'pit';
+  div.id = 'pit-' + i;
+  if(i === state.lastSown) div.className += ' last-sown';
+  const clickable = !state.over && !busy && isSouth && state.turn === SOUTH && state.board[i] > 0;
+  if(clickable){
+    div.className += ' clickable';
+    div.onclick = () => onPitClick(i);
+  }
+
+  const cluster = buildPebbleCluster(i, state.board[i]);
+  div.appendChild(cluster);
+
+  const label = document.createElement('span');
+  label.className = 'pit-label';
+  label.textContent = pitLabel(i);
+  div.appendChild(label);
+
+  return div;
+}
+
+function setStatus(text){ document.getElementById('statusLine').textContent = text; }
+
+function setPitDisplay(i, count){
+  const el = document.getElementById('pit-' + i);
+  if(!el) return;
+  const wrap = el.querySelector('.pebble-cluster');
+  if(wrap) appendPebbles(wrap, i, count);
+}
+
+function bouncePit(i){
+  const el = document.getElementById('pit-' + i);
+  if(!el) return;
+  el.classList.remove('bounce');
+  void el.offsetWidth;
+  el.classList.add('bounce');
+}
+
+function glowPit(i){
+  const el = document.getElementById('pit-' + i);
+  if(!el) return;
+  el.classList.remove('capturing');
+  void el.offsetWidth;
+  el.classList.add('capturing');
+}
+
+function rectCenter(el){
+  const r = el.getBoundingClientRect();
+  return {x: r.left + r.width / 2, y: r.top + r.height / 2};
+}
+
+function pitCenter(i){
+  const el = document.getElementById('pit-' + i);
+  return rectCenter(el);
+}
+
+function popScore(player){
+  const el = document.getElementById(player === SOUTH ? 'scoreYou' : 'scoreBot');
+  if(!el) return;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  setTimeout(() => el.classList.remove('pop'), 350);
+}
+
+/* ---------- Seed sowing / capture animation ---------- */
+/* Every pebble is scooped from the source pit and travels, one at a time, directly to its own destination pit — mirroring how a player physically sows a real oware board. */
+
+async function animateSowing(player, pit){
+  busy = true;
+  try{
+    const sim = simulateSowForAnimation(state.board, player, pit);
+    const path = sim.path;
+    const capturedPits = sim.capturedPits;
+
+    const displayCounts = state.board.slice();
+    displayCounts[pit] = 0;
+    setPitDisplay(pit, 0);
+    bouncePit(pit);
+    await sleep(140);
+
+    const sourceCenter = pitCenter(pit);
+    const seedTravel = path.length > 10 ? 90 : 150;
+    const animLayer = document.getElementById('animLayer');
+
+    for(const idx of path){
+      const target = pitCenter(idx);
+      const flyer = document.createElement('div');
+      flyer.className = 'traveling-seed';
+      flyer.style.left = sourceCenter.x + 'px';
+      flyer.style.top = sourceCenter.y + 'px';
+      animLayer.appendChild(flyer);
+      await nextFrame();
+      flyer.style.transition = 'left ' + seedTravel + 'ms ease, top ' + seedTravel + 'ms ease, opacity 0.2s ease';
+      flyer.style.opacity = '1';
+      await nextFrame();
+      flyer.style.left = target.x + 'px';
+      flyer.style.top = target.y + 'px';
+      await sleep(seedTravel);
+      displayCounts[idx] += 1;
+      setPitDisplay(idx, displayCounts[idx]);
+      bouncePit(idx);
+      flyer.style.opacity = '0';
+      setTimeout(() => { if(flyer.parentNode) flyer.remove(); }, 220);
+      await sleep(28);
+    }
+
+    if(capturedPits.length > 0){
+      for(const cp of capturedPits) glowPit(cp);
+      await sleep(600);
+      for(const cp of capturedPits){
+        const from = pitCenter(cp);
+        const to = rectCenter(document.getElementById(player === SOUTH ? 'scoreYou' : 'scoreBot'));
+        const flyer = document.createElement('div');
+        flyer.className = 'traveling-seed';
+        flyer.style.left = from.x + 'px';
+        flyer.style.top = from.y + 'px';
+        animLayer.appendChild(flyer);
+        await nextFrame();
+        flyer.style.transition = 'left 0.45s ease, top 0.45s ease, opacity 0.45s ease';
+        flyer.style.opacity = '1';
+        await nextFrame();
+        flyer.style.left = to.x + 'px';
+        flyer.style.top = to.y + 'px';
+        flyer.style.opacity = '0';
+        setTimeout(() => { if(flyer.parentNode) flyer.remove(); }, 480);
+        setPitDisplay(cp, 0);
+      }
+      await sleep(500);
+      popScore(player);
+    }
+
+    state = playMove(state, pit);
+    render();
+  } catch(err){
+    console.error('Oware animation error — resolving move without animation:', err);
+    try{ state = playMove(state, pit); render(); } catch(e2){ console.error('Fatal engine error:', e2); }
+  } finally {
+    busy = false;
+  }
+}
+
+/* ---------- Advisor panel ---------- */
+
+function updateAdvisorForPlayerTurn(){
+  let html = '';
+  if(firstTurn){
+    html += `<p class="okomfo-greeting">My king, the board is set as it was at Feyiase. Choose wisely.</p>`;
+    firstTurn = false;
+  }
+  html += `<p>${buildAdvisorMessage(state)}</p>`;
+  document.getElementById('okomfoText').innerHTML = html;
+}
+
+function updateAdvisorForOpponentMove(captured){
+  document.getElementById('okomfoText').innerHTML = `<p>${narrateOpponentMove(opponentName, captured)}</p>`;
+}
+
+function updateAdvisorGameOver(){
+  let msg;
+  if(state.winner === 'draw') msg = pick(DRAW_MESSAGES);
+  else if(state.winner === SOUTH) msg = pick(WIN_MESSAGES);
+  else msg = pick(LOSS_MESSAGES)(opponentName);
+  document.getElementById('okomfoText').innerHTML = `<p>${msg}</p>`;
+}
+
+/* ---------- Turn flow ---------- */
+
+async function onPitClick(pit){
+  if(busy || state.over || state.turn !== SOUTH) return;
+  const legal = legalMoves(state.board, SOUTH);
+  if(!legal.includes(pit)) return;
+
+  try{
+    setStatus('');
+    await animateSowing(SOUTH, pit);
+
+    if(state.over){
+      updateAdvisorGameOver();
+      return;
+    }
+
+    setStatus(opponentName + ' is considering their move…');
+    await sleep(300);
+    await asanteTurn();
+  } catch(err){
+    console.error('Turn flow error:', err);
+    busy = false;
+    render();
+    setStatus('Something interrupted the flow — please continue.');
+  }
+}
+
+async function asanteTurn(){
+  const {move} = getBestMove(state, BOT_DEPTH);
+  if(move === null){
+    render();
+    return;
+  }
+  const before = state.captures[NORTH];
+  await animateSowing(NORTH, move);
+  const captured = state.captures[NORTH] - before;
+
+  if(state.over){
+    updateAdvisorGameOver();
+    setStatus('');
+    return;
+  }
+
+  updateAdvisorForOpponentMove(captured);
+  setStatus('Your move.');
+  await sleep(900);
+  if(!state.over && state.turn === SOUTH){
+    updateAdvisorForPlayerTurn();
+  }
+}
+
+/* ---------- Controls ---------- */
+
+document.getElementById('btnNew').addEventListener('click', () => {
+  state = initialState();
+  busy = false;
+  firstTurn = true;
+  pickOpponentName();
+  render();
+  setStatus('Pick a pit on your row to begin.');
+  updateAdvisorForPlayerTurn();
+});
+
+document.getElementById('btnHistory').addEventListener('click', () => {
+  document.getElementById('introPage1').style.display = 'block';
+  document.getElementById('introPage2').style.display = 'none';
+  document.getElementById('introOverlay').classList.remove('hidden');
+});
+
+document.getElementById('btnPage2').addEventListener('click', () => {
+  document.getElementById('introPage1').style.display = 'none';
+  document.getElementById('introPage2').style.display = 'block';
+});
+
+document.getElementById('btnBegin').addEventListener('click', () => {
+  document.getElementById('introOverlay').classList.add('hidden');
+});
+
+pickOpponentName();
+render();
+updateAdvisorForPlayerTurn();
+</script>
+</body>
+</html>
