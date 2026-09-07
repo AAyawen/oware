@@ -560,7 +560,7 @@ function getBestMove(state, depth){
 
 /* ---------- Strategic analysis for the Okomfo's counsel ---------- */
 
-const ADVISOR_DEPTH = 6;
+const ADVISOR_DEPTH = 4;
 
 function analyzeMoves(state){
   const player = state.turn;
@@ -718,7 +718,7 @@ const DRAW_MESSAGES = [
 
 /* ---------- UI state ---------- */
 
-const BOT_DEPTH = 8;
+const BOT_DEPTH = 6;
 let state = initialState();
 let busy = false;
 let firstTurn = true;
@@ -935,6 +935,7 @@ async function animateSowing(player, pit){
     try{ state = playMove(state, pit); render(); } catch(e2){ console.error('Fatal engine error:', e2); }
   } finally {
     busy = false;
+    render();
   }
 }
 
